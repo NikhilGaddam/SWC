@@ -18,12 +18,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <meta-data
-            android:name="https://login.microsoftonline.com/common"
-            android:value="authority string"/>
-        <meta-data
-            android:name="com.microsoft.identity.client.ClientId"
-            android:value="@string/client_Id"/>
     </application>
 
 </manifest>
