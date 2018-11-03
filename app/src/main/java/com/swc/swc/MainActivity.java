@@ -45,6 +45,7 @@ public class    MainActivity extends AppCompatActivity {
     /* UI & Debugging Variables */
     private static final String TAG = MainActivity.class.getSimpleName();
     Button callGraphButton;
+
     Button signOutButton;
 
     /* Azure AD Constants */
