@@ -16,6 +16,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+
+
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -403,7 +405,7 @@ public class    MainActivity extends AppCompatActivity {
                         /* Device is in Doze mode or App is in stand by mode.
                            Wake up the app or show an appropriate prompt for the user to take action
                            More information on this : https://github.com/AzureAD/azure-activedirectory-library-for-android/wiki/Handle-Doze-and-App-Standby */
-                        Log.e(TAG, "Device is in doze mode or the app is in standby mode");
+                        Log.e(TAG, "Device in doze mode or the app is in standby mode");
                     }
                 }
                 /* set the sIntSignInInvoked boolean back to false  */
