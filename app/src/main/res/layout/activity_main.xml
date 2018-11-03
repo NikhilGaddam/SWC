@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
@@ -20,13 +21,14 @@
 
     <Button
         android:id="@+id/callGraph"
-        android:text="@string/call_graph"
-        android:textColor="#FFFFFF"
-        android:background="#00a1f1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="200dp"
-        android:textAllCaps="false" />
+        android:background="#00a1f1"
+        android:text="@string/call_graph"
+        android:textAllCaps="false"
+        android:textColor="#FFFFFF"
+        tools:layout_editor_absoluteX="40dp"
+        tools:layout_editor_absoluteY="158dp" />
 
     <TextView
         android:text="@string/loading"
@@ -42,17 +44,31 @@
         android:layout_height="0dip"
         android:layout_weight="1"
         android:gravity="center|bottom"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="143dp">
 
         <Button
-            android:text="@string/sign_out"
+            android:id="@+id/clearCache"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="15dp"
-            android:textColor="#FFFFFF"
             android:background="#00a1f1"
+            android:text="@string/sign_out"
             android:textAllCaps="false"
-            android:id="@+id/clearCache"
+            android:textColor="#FFFFFF"
             android:visibility="invisible" />
     </LinearLayout>
-</LinearLayout>
+
+    <Button
+        android:id="@+id/map_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp"
+        android:onClick="map_open"
+        android:text="Open Maps"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="386dp" />
+</android.support.constraint.ConstraintLayout>

@@ -49,6 +49,7 @@ public class    MainActivity extends AppCompatActivity {
     Button callGraphButton;
 
     Button signOutButton;
+    Button maps_btn;
 
     /* Azure AD Constants */
     /* Authority is in the form of https://login.microsoftonline.com/yourtenant.onmicrosoft.com */
@@ -103,6 +104,7 @@ public class    MainActivity extends AppCompatActivity {
 
         callGraphButton = (Button) findViewById(R.id.callGraph);
         signOutButton = (Button) findViewById(R.id.clearCache);
+        maps_btn = (Button) findViewById(R.id.map_button);
 
         callGraphButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -413,5 +415,12 @@ public class    MainActivity extends AppCompatActivity {
             }
         };
     }
+
+    public void map_open(View v)
+    {
+        Intent i = new Intent(MainActivity.this, MapsActivity.class);
+        startActivity(i);
+    }
+
 
 }
