@@ -2,6 +2,7 @@ package com.swc.swc;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -42,10 +43,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class Outlook_API_Activity extends AppCompatActivity {
-
+    ProgressDialog progressdialog;
     /* UI & Debugging Variables */
     private static final String TAG = Outlook_API_Activity.class.getSimpleName();
-    Button callGraphButton;
     Button signOutButton;
 
     /* Azure AD Constants */
@@ -98,11 +98,11 @@ public class Outlook_API_Activity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_outlook__api_);
-
-        callGraphButton = (Button) findViewById(R.id.callGraph);
+        progressdialog = new ProgressDialog(Outlook_API_Activity.this);
+        progressdialog.setMessage("Please Wait....");
+        progressdialog.show();
         signOutButton = (Button) findViewById(R.id.clearCache);
 
-        onCallGraphClicked();
 
 
         signOutButton.setOnClickListener(new View.OnClickListener() {
@@ -145,6 +145,7 @@ public class Outlook_API_Activity extends AppCompatActivity {
         if(!TextUtils.isEmpty(userId)){
             mAuthContext.acquireTokenSilentAsync(RESOURCE_ID, CLIENT_ID, userId, getAuthSilentCallback());
         }
+        onCallGraphClicked();
     }
 
     //
@@ -168,6 +169,7 @@ public class Outlook_API_Activity extends AppCompatActivity {
      */
     private void onCallGraphClicked() {
         mAcquireTokenHandler.sendEmptyMessage(MSG_INTERACTIVE_SIGN_IN_PROMPT_AUTO);
+        progressdialog.dismiss();
     }
 
     private void callGraphAPI() {
@@ -242,7 +244,6 @@ public class Outlook_API_Activity extends AppCompatActivity {
     private void updateSuccessUI() {
         // Called on success from /me endpoint
         // Removed call Graph API button and paint Sign out
-        callGraphButton.setVisibility(View.INVISIBLE);
         signOutButton.setVisibility(View.VISIBLE);
         findViewById(R.id.welcome).setVisibility(View.VISIBLE);
         ((TextView) findViewById(R.id.welcome)).setText("Welcome, " +
@@ -253,7 +254,6 @@ public class Outlook_API_Activity extends AppCompatActivity {
 
     @SuppressLint("SetTextI18n")
     private void updateSignedOutUI() {
-        callGraphButton.setVisibility(View.VISIBLE);
         signOutButton.setVisibility(View.INVISIBLE);
         findViewById(R.id.welcome).setVisibility(View.INVISIBLE);
         findViewById(R.id.graphData).setVisibility(View.INVISIBLE);

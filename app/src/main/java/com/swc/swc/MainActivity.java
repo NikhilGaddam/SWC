@@ -1,5 +1,6 @@
 package com.swc.swc;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,6 +20,14 @@ public class    MainActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
+        login_outlook = (Button) findViewById(R.id.lgn_outlook);
+        login_outlook.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this,Outlook_API_Activity.class);
+                startActivity(intent);
+            }
+        });
 
 
 
