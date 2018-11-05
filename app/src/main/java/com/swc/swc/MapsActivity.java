@@ -1,10 +1,30 @@
 package com.swc.swc;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Criteria;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
+import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.View;
+import android.widget.RelativeLayout;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
@@ -13,37 +33,43 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
+import cameo.code.placeautocomplete.PlaceAutoCompleteFragment;
+import cameo.code.placeautocomplete.PlaceModel;
+
+public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
 
     private GoogleMap mMap;
-    PlaceAutocompleteFragment placeAutoComplete;
+    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
+    GoogleApiClient mGoogleApiClient;
+    View mapView;
+    Location mLastLocation;
 
+    Marker mCurrLocationMarker;
+    LocationRequest mLocationRequest;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
 
-        placeAutoComplete = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete);
-        placeAutoComplete.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-            @Override
-            public void onPlaceSelected(Place place) {
-
-                Log.d("Maps", "Place selected: " + place.getName());
-            }
-
-            @Override
-            public void onError(Status status) {
-                Log.d("Maps", "An error occurred: " + status);
-            }
-        });
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        mapView = mapFragment.getView();
     }
 
 
@@ -59,15 +85,141 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+//        mMap.getUiSettings().setZoomControlsEnabled(true);
+//        mMap.getUiSettings().setZoomGesturesEnabled(true);
+        mMap.getUiSettings().setCompassEnabled(true);
+        //Initialize Google Play Services
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)
+                    == PackageManager.PERMISSION_GRANTED) {
+                buildGoogleApiClient();
+                mMap.setMyLocationEnabled(true);
+            }
+        } else {
+            buildGoogleApiClient();
+            mMap.setMyLocationEnabled(true);
+        }
 
-        // Add a marker in Sydney and move the camera
-        LatLng myLocation = new LatLng(26.191847, 91.691604);
-        //mMap.addMarker(new MarkerOptions().position(myLocation).title("My marker"));
-        CameraUpdate zoom = CameraUpdateFactory.zoomTo(25);
-        mMap.animateCamera(zoom);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
-        mMap.setTrafficEnabled(true);
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
-        mMap.setBuildingsEnabled(true);
+
+
+
+
+
+//get latlong for corners for specified place
+        LatLng one = new LatLng(26.201932, 91.684568);
+        LatLng two = new LatLng(26.183738, 91.705171);
+
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+
+        //add them to builder
+        builder.include(one);
+        builder.include(two);
+
+        LatLngBounds bounds = builder.build();
+
+        //get width and height to current display screen
+        int width = getResources().getDisplayMetrics().widthPixels;
+        int height = getResources().getDisplayMetrics().heightPixels;
+
+        // 20% padding
+        int padding = (int) (width * 0.20);
+
+        //set latlong bounds
+        mMap.setLatLngBoundsForCameraTarget(bounds);
+
+        //move camera to fill the bound to screen
+        mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding));
+
+        //set zoom to level to current so that you won't be able to zoom out viz. move outside bounds
+        mMap.setMinZoomPreference(mMap.getCameraPosition().zoom);
+    }
+
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        mGoogleApiClient.connect();
+    }
+
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(1000);
+        mLocationRequest.setFastestInterval(1000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
+                    mLocationRequest, this);
+        }
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        mLastLocation = location;
+        if (mCurrLocationMarker != null) {
+            mCurrLocationMarker.remove();
+        }
+//Showing Current Location Marker on Map
+        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        MarkerOptions markerOptions = new MarkerOptions();
+        markerOptions.position(latLng);
+        LocationManager locationManager = (LocationManager)
+                getSystemService(Context.LOCATION_SERVICE);
+        String provider = locationManager.getBestProvider(new Criteria(), true);
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        Location locations = locationManager.getLastKnownLocation(provider);
+        List<String> providerList = locationManager.getAllProviders();
+        if (null != locations && null != providerList && providerList.size() > 0) {
+            double longitude = locations.getLongitude();
+            double latitude = locations.getLatitude();
+
+            Geocoder geocoder = new Geocoder(getApplicationContext(),
+                    Locale.getDefault());
+            try {
+                List<Address> listAddresses = geocoder.getFromLocation(latitude,
+                        longitude, 1);
+                if (null != listAddresses && listAddresses.size() > 0) {
+                    String state = listAddresses.get(0).getAdminArea();
+                    String country = listAddresses.get(0).getCountryName();
+                    String subLocality = listAddresses.get(0).getSubLocality();
+                    markerOptions.title("" + latLng + "," + subLocality + "," + state
+                            + "," + country);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+        //mCurrLocationMarker = mMap.addMarker(markerOptions);
+        // mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        // mMap.animateCamera(CameraUpdateFactory.zoomTo(11));
+        if (mGoogleApiClient != null) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient,
+                    this);
+        }
+
     }
 }
