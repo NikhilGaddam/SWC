@@ -69,6 +69,7 @@
             android:layout_weight="1.2"
             android:layout_gravity="center_horizontal"
             android:id="@+id/guest_txt"
+            android:onClick="main_open"
             android:gravity="center"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
