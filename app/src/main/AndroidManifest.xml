@@ -44,11 +44,11 @@
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
 
+        <activity android:name=".LoginActivity" />
+        <activity android:name=".Outlook_API_Activity" />
         <activity
             android:name=".MapsActivity"
-            android:label="@string/title_activity_maps" />
-        <activity android:name=".MainActivity" />
-        <activity android:name=".Outlook_API_Activity"></activity>
+            android:label="@string/title_activity_maps"></activity>
     </application>
 
 </manifest>

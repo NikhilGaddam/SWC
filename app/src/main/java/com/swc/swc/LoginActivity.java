@@ -1,8 +1,6 @@
 package com.swc.swc;
 
 import android.content.Intent;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -10,7 +8,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 
-public class    MainActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
 
     Button login_outlook;
     @Override
@@ -24,7 +22,7 @@ public class    MainActivity extends AppCompatActivity {
         login_outlook.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this,Outlook_API_Activity.class);
+                Intent intent = new Intent(LoginActivity.this,Outlook_API_Activity.class);
                 startActivity(intent);
             }
         });
