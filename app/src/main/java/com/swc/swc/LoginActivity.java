@@ -17,7 +17,7 @@ public class LoginActivity extends AppCompatActivity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_login);
         login_outlook = (Button) findViewById(R.id.lgn_outlook);
         login_outlook.setOnClickListener(new View.OnClickListener() {
             @Override
